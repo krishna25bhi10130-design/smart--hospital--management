@@ -14,7 +14,7 @@ class ApiService {
    * Helper to build full URL with optional query parameters.
    */
   buildUrl(endpoint, params = {}) {
-    const rawBase = window.CONFIG ? window.CONFIG.getBaseUrl() : 'http://127.0.0.1:8000';
+    const rawBase = window.CONFIG ? window.CONFIG.getBaseUrl() : 'https://smart-hospital-management-1-hrt3.onrender.com';
     const cleanBase = rawBase.trim().replace(/\/+$/, '');
     const cleanPath = endpoint.trim().replace(/^\/+/, '');
     
