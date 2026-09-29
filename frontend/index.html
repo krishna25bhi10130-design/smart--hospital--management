@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Hospital Management System</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col font-sans antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- Mobile Sidebar Backdrop -->
+  <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden md:hidden"></div>
+
+  <div class="flex flex-1 min-h-screen">
+
+    <!-- ================================================================= -->
+    <!-- SIDEBAR NAVIGATION                                                -->
+    <!-- ================================================================= -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col transition-transform duration-200 ease-in-out md:static md:translate-x-0 -translate-x-full shadow-sm">
+      
+      <!-- Brand Logo & Name -->
+      <div class="h-16 flex items-center gap-3 px-6 border-b border-slate-100">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-teal-400 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
+          <i data-lucide="cross" class="w-5 h-5 stroke-[2.5]"></i>
+        </div>
+        <div>
+          <h1 class="text-base font-bold tracking-tight text-slate-800 leading-tight">Smart Hospital</h1>
+          <p class="text-[11px] font-semibold uppercase tracking-wider text-sky-600">Management System</p>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="flex-1 py-6 px-3 space-y-1.5 overflow-y-auto">
+        <div class="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">Main Menu</div>
+
+        <!-- Dashboard -->
+        <a href="#dashboard" data-tab="dashboard" class="nav-link active flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-slate-400"></i>
+          <span>Dashboard</span>
+        </a>
+
+        <!-- Patients -->
+        <a href="#patients" data-tab="patients" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+          <i data-lucide="users" class="w-4 h-4 text-slate-400"></i>
+          <span>Patients</span>
+        </a>
+
+        <!-- Doctors -->
+        <a href="#doctors" data-tab="doctors" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+          <i data-lucide="stethoscope" class="w-4 h-4 text-slate-400"></i>
+          <span>Doctors</span>
+        </a>
+
+        <!-- Appointments -->
+        <a href="#appointments" data-tab="appointments" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+          <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
+          <span>Appointments</span>
+        </a>
+
+        <!-- Medical Records -->
+        <a href="#medical-records" data-tab="medical-records" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition">
+          <i data-lucide="file-text" class="w-4 h-4 text-slate-400"></i>
+          <span>Medical Records</span>
+        </a>
+      </div>
+
+      <!-- Footer Info / Backend status inside sidebar -->
+      <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+        <div class="rounded-xl bg-white p-3 border border-slate-200/80 shadow-xs">
+          <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">FastAPI Backend</div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono text-slate-600 truncate">127.0.0.1:8000</span>
+            <button id="btn-backend-settings" class="text-slate-400 hover:text-sky-600 transition p-1" title="API Settings">
+              <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ================================================================= -->
+    <!-- MAIN CONTENT AREA                                                 -->
+    <!-- ================================================================= -->
+    <div class="flex-1 flex flex-col min-w-0">
+
+      <!-- TOP HEADER BAR -->
+      <header class="h-16 bg-white border-b border-slate-200 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30">
+        <div class="flex items-center gap-3">
+          <!-- Mobile toggle button -->
+          <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg text-slate-500 hover:bg-slate-100">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+          <div class="hidden sm:block text-sm font-semibold text-slate-500">
+            Hospital Operations Portal
+          </div>
+        </div>
+
+        <!-- Right Header Actions -->
+        <div class="flex items-center gap-3">
+          <!-- Backend Status Pill -->
+          <div id="backend-status-badge" class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200 cursor-pointer">
+            <span id="backend-status-dot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+            <span id="backend-status-text">Checking Backend...</span>
+          </div>
+
+          <!-- Refresh Data Button -->
+          <button id="btn-refresh-all" class="p-2 rounded-xl text-slate-500 hover:text-sky-600 hover:bg-slate-100 transition" title="Refresh all data">
+            <i data-lucide="rotate-cw" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- VIEW SECTIONS CONTAINER -->
+      <main class="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto">
+
+        <!-- ============================================================= -->
+        <!-- VIEW: DASHBOARD                                               -->
+        <!-- ============================================================= -->
+        <section id="view-dashboard" class="view-section space-y-8 animate-fade-in">
+          <!-- Welcome Banner -->
+          <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-sky-700 via-sky-600 to-teal-600 p-6 sm:p-8 text-white shadow-md">
+            <div class="relative z-10 max-w-2xl">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 backdrop-blur-md mb-3 text-white border border-white/20">
+                <i data-lucide="activity" class="w-3.5 h-3.5"></i> Live Hospital Dashboard
+              </span>
+              <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Smart Hospital Operations</h2>
+              <p class="mt-2 text-sky-100 text-sm sm:text-base leading-relaxed">
+                Seamlessly managing active doctors, patient visits, doctor schedules, and digital medical records connected directly to your FastAPI backend.
+              </p>
+              
+              <!-- Quick Action Bar inside Banner -->
+              <div class="mt-6 flex flex-wrap gap-2.5">
+                <button onclick="App.openAddDoctorModal()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-white text-sky-700 hover:bg-sky-50 shadow-sm transition">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Doctor
+                </button>
+                <button onclick="App.openAddAppointmentModal()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm transition">
+                  <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i> Schedule Appointment
+                </button>
+                <button onclick="App.openAddPatientModal()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm transition">
+                  <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Add Patient
+                </button>
+                <button onclick="App.openAddMedicalRecordModal()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-white/20 hover:bg-white/30 text-white border border-white/30 backdrop-blur-sm transition">
+                  <i data-lucide="file-plus" class="w-3.5 h-3.5"></i> New Medical Record
+                </button>
+              </div>
+            </div>
+
+            <!-- Background decorative shape -->
+            <div class="absolute -right-8 -bottom-12 w-64 h-64 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
+          </div>
+
+          <!-- Statistics Counters Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <!-- Doctors Card -->
+            <div onclick="App.switchTab('doctors')" class="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md hover:border-indigo-200 transition cursor-pointer group">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Doctors</p>
+                  <h3 id="stat-doctors-count" class="text-3xl font-extrabold text-slate-800 mt-2 group-hover:text-indigo-600 transition">--</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition">
+                  <i data-lucide="stethoscope" class="w-6 h-6"></i>
+                </div>
+              </div>
+              <p class="mt-3 text-xs text-slate-500 flex items-center gap-1">
+                <span>View doctors roster</span>
+                <i data-lucide="arrow-right" class="w-3 h-3 text-slate-400 group-hover:translate-x-1 transition"></i>
+              </p>
+            </div>
+
+            <!-- Patients Card -->
+            <div onclick="App.switchTab('patients')" class="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md hover:border-emerald-200 transition cursor-pointer group">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Registered Patients</p>
+                  <h3 id="stat-patients-count" class="text-3xl font-extrabold text-slate-800 mt-2 group-hover:text-emerald-600 transition">--</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition">
+                  <i data-lucide="users" class="w-6 h-6"></i>
+                </div>
+              </div>
+              <p class="mt-3 text-xs text-slate-500 flex items-center gap-1">
+                <span>Patient records & health</span>
+                <i data-lucide="arrow-right" class="w-3 h-3 text-slate-400 group-hover:translate-x-1 transition"></i>
+              </p>
+            </div>
+
+            <!-- Appointments Card -->
+            <div onclick="App.switchTab('appointments')" class="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md hover:border-sky-200 transition cursor-pointer group">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Appointments</p>
+                  <h3 id="stat-appointments-count" class="text-3xl font-extrabold text-slate-800 mt-2 group-hover:text-sky-600 transition">--</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center group-hover:scale-110 transition">
+                  <i data-lucide="calendar" class="w-6 h-6"></i>
+                </div>
+              </div>
+              <p class="mt-3 text-xs text-slate-500 flex items-center gap-1">
+                <span>Scheduled patient visits</span>
+                <i data-lucide="arrow-right" class="w-3 h-3 text-slate-400 group-hover:translate-x-1 transition"></i>
+              </p>
+            </div>
+
+            <!-- Medical Records Card -->
+            <div onclick="App.switchTab('medical-records')" class="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md hover:border-amber-200 transition cursor-pointer group">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Medical Records</p>
+                  <h3 id="stat-records-count" class="text-3xl font-extrabold text-slate-800 mt-2 group-hover:text-amber-600 transition">--</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-110 transition">
+                  <i data-lucide="file-text" class="w-6 h-6"></i>
+                </div>
+              </div>
+              <p class="mt-3 text-xs text-slate-500 flex items-center gap-1">
+                <span>Diagnoses & prescriptions</span>
+                <i data-lucide="arrow-right" class="w-3 h-3 text-slate-400 group-hover:translate-x-1 transition"></i>
+              </p>
+            </div>
+          </div>
+
+          <!-- Dual Column: Recent Appointments & Recent Records -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Left: Recent Appointments -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col">
+              <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="calendar" class="w-4 h-4 text-sky-600"></i>
+                  <h3 class="text-base font-bold text-slate-800">Recent Appointments</h3>
+                </div>
+                <button onclick="App.switchTab('appointments')" class="text-xs font-semibold text-sky-600 hover:text-sky-700">View all</button>
+              </div>
+              <div id="dashboard-recent-appointments" class="divide-y divide-slate-100 flex-1">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <!-- Right: Recent Medical Records -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col">
+              <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="clipboard-list" class="w-4 h-4 text-emerald-600"></i>
+                  <h3 class="text-base font-bold text-slate-800">Latest Medical Diagnoses</h3>
+                </div>
+                <button onclick="App.switchTab('medical-records')" class="text-xs font-semibold text-sky-600 hover:text-sky-700">View all</button>
+              </div>
+              <div id="dashboard-recent-records" class="divide-y divide-slate-100 flex-1">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ============================================================= -->
+        <!-- VIEW: DOCTORS                                                 -->
+        <!-- ============================================================= -->
+        <section id="view-doctors" class="view-section space-y-6 hidden animate-fade-in">
+          <!-- Page Header -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h2 class="text-2xl font-bold tracking-tight text-slate-900">Doctors Management</h2>
+              <p class="text-sm text-slate-500 mt-1">Live doctor records fetched from FastAPI endpoint <code class="text-xs font-mono bg-slate-100 px-1.5 py-0.5 rounded text-sky-700">/doctors</code>.</p>
+            </div>
+            <button onclick="App.openAddDoctorModal()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-sky-600 hover:bg-sky-700 text-white shadow-sm shadow-sky-600/20 transition self-start sm:self-auto">
+              <i data-lucide="plus" class="w-4 h-4"></i> Add Doctor
+            </button>
+          </div>
+
+          <!-- Filter & Table Card -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="p-4 border-b border-slate-100 flex items-center gap-3">
+              <div class="relative flex-1 max-w-md">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input id="search-doctors" type="text" placeholder="Search doctor by name or specialization..." class="w-full pl-10 pr-4 py-2 rounded-xl text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition" />
+              </div>
+            </div>
+
+            <!-- Responsive Table -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50/75 border-b border-slate-200/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <th class="px-6 py-3.5">ID</th>
+                    <th class="px-6 py-3.5">Doctor</th>
+                    <th class="px-6 py-3.5">Specialization</th>
+                    <th class="px-6 py-3.5 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="doctors-table-body" class="divide-y divide-slate-100">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ============================================================= -->
+        <!-- VIEW: APPOINTMENTS                                            -->
+        <!-- ============================================================= -->
+        <section id="view-appointments" class="view-section space-y-6 hidden animate-fade-in">
+          <!-- Page Header -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h2 class="text-2xl font-bold tracking-tight text-slate-900">Appointments Schedule</h2>
+              <p class="text-sm text-slate-500 mt-1">Real-time appointments managed via <code class="text-xs font-mono bg-slate-100 px-1.5 py-0.5 rounded text-sky-700">/appointments</code>.</p>
+            </div>
+            <button onclick="App.openAddAppointmentModal()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-sky-600 hover:bg-sky-700 text-white shadow-sm shadow-sky-600/20 transition self-start sm:self-auto">
+              <i data-lucide="calendar-plus" class="w-4 h-4"></i> Schedule Appointment
+            </button>
+          </div>
+
+          <!-- Filter & Table Card -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="p-4 border-b border-slate-100 flex items-center gap-3">
+              <div class="relative flex-1 max-w-md">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input id="search-appointments" type="text" placeholder="Search by patient, doctor, or date..." class="w-full pl-10 pr-4 py-2 rounded-xl text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition" />
+              </div>
+            </div>
+
+            <!-- Responsive Table -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50/75 border-b border-slate-200/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <th class="px-6 py-3.5">ID</th>
+                    <th class="px-6 py-3.5">Patient</th>
+                    <th class="px-6 py-3.5">Doctor</th>
+                    <th class="px-6 py-3.5">Date</th>
+                    <th class="px-6 py-3.5">Time</th>
+                    <th class="px-6 py-3.5 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="appointments-table-body" class="divide-y divide-slate-100">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ============================================================= -->
+        <!-- VIEW: MEDICAL RECORDS                                         -->
+        <!-- ============================================================= -->
+        <section id="view-medical-records" class="view-section space-y-6 hidden animate-fade-in">
+          <!-- Page Header -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h2 class="text-2xl font-bold tracking-tight text-slate-900">Medical Records</h2>
+              <p class="text-sm text-slate-500 mt-1">Clinical records and prescriptions synced from <code class="text-xs font-mono bg-slate-100 px-1.5 py-0.5 rounded text-sky-700">/medical-records</code>.</p>
+            </div>
+            <button onclick="App.openAddMedicalRecordModal()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-sky-600 hover:bg-sky-700 text-white shadow-sm shadow-sky-600/20 transition self-start sm:self-auto">
+              <i data-lucide="file-plus" class="w-4 h-4"></i> New Medical Record
+            </button>
+          </div>
+
+          <!-- Filter & Table Card -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="p-4 border-b border-slate-100 flex items-center gap-3">
+              <div class="relative flex-1 max-w-md">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input id="search-records" type="text" placeholder="Search by patient, doctor, diagnosis, symptoms..." class="w-full pl-10 pr-4 py-2 rounded-xl text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition" />
+              </div>
+            </div>
+
+            <!-- Responsive Table -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50/75 border-b border-slate-200/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <th class="px-6 py-3.5">ID</th>
+                    <th class="px-6 py-3.5">Patient</th>
+                    <th class="px-6 py-3.5">Doctor</th>
+                    <th class="px-6 py-3.5">Diagnosis</th>
+                    <th class="px-6 py-3.5">Symptoms</th>
+                    <th class="px-6 py-3.5">Date</th>
+                    <th class="px-6 py-3.5 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="records-table-body" class="divide-y divide-slate-100">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- ============================================================= -->
+        <!-- VIEW: PATIENTS                                                -->
+        <!-- ============================================================= -->
+        <section id="view-patients" class="view-section space-y-6 hidden animate-fade-in">
+          <!-- Page Header -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h2 class="text-2xl font-bold tracking-tight text-slate-900">Patients Directory</h2>
+              <p class="text-sm text-slate-500 mt-1">Live patient registry managed via <code class="text-xs font-mono bg-slate-100 px-1.5 py-0.5 rounded text-sky-700">/patients</code>.</p>
+            </div>
+            <button onclick="App.openAddPatientModal()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-sky-600 hover:bg-sky-700 text-white shadow-sm shadow-sky-600/20 transition self-start sm:self-auto">
+              <i data-lucide="user-plus" class="w-4 h-4"></i> Register Patient
+            </button>
+          </div>
+
+          <!-- Filter & Table Card -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="p-4 border-b border-slate-100 flex items-center gap-3">
+              <div class="relative flex-1 max-w-md">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input id="search-patients" type="text" placeholder="Search patient by name or diagnosed condition..." class="w-full pl-10 pr-4 py-2 rounded-xl text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition" />
+              </div>
+            </div>
+
+            <!-- Responsive Table -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50/75 border-b border-slate-200/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <th class="px-6 py-3.5">ID</th>
+                    <th class="px-6 py-3.5">Patient</th>
+                    <th class="px-6 py-3.5">Age</th>
+                    <th class="px-6 py-3.5">Diagnosed Disease</th>
+                    <th class="px-6 py-3.5 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="patients-table-body" class="divide-y divide-slate-100">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+
+  <!-- =================================================================== -->
+  <!-- MODALS                                                              -->
+  <!-- =================================================================== -->
+
+  <!-- DOCTOR MODAL (Add & Edit) -->
+  <div id="modal-doctor" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 modal-content animate-fade-in">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <h3 id="modal-doctor-title" class="text-lg font-bold text-slate-900">Add New Doctor</h3>
+        <button onclick="App.closeModal('modal-doctor')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="form-doctor" class="mt-5 space-y-4">
+        <input type="hidden" id="doctor-id-input" />
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Doctor Name</label>
+          <input type="text" id="doctor-name-input" placeholder="e.g. Dr. Jane Smith" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Specialization</label>
+          <input type="text" id="doctor-specialization-input" placeholder="e.g. Cardiologist, Neurologist, Pediatrician" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500" />
+        </div>
+        <div class="pt-3 flex items-center justify-end gap-3 border-t border-slate-100">
+          <button type="button" onclick="App.closeModal('modal-doctor')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">Cancel</button>
+          <button type="submit" id="btn-save-doctor" class="px-5 py-2 rounded-xl text-sm font-bold bg-sky-600 hover:bg-sky-700 text-white shadow-sm transition">Save Doctor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- APPOINTMENT MODAL (Add & Edit) -->
+  <div id="modal-appointment" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 modal-content animate-fade-in">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <h3 id="modal-appointment-title" class="text-lg font-bold text-slate-900">Schedule Appointment</h3>
+        <button onclick="App.closeModal('modal-appointment')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="form-appointment" class="mt-5 space-y-4">
+        <input type="hidden" id="appointment-id-input" />
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Select Patient</label>
+          <select id="appointment-patient-select" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 bg-white">
+            <option value="">-- Select Patient --</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Select Doctor</label>
+          <select id="appointment-doctor-select" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 bg-white">
+            <option value="">-- Select Doctor --</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Date</label>
+            <input type="date" id="appointment-date-input" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Time</label>
+            <input type="text" id="appointment-time-input" placeholder="10:30 AM" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500" />
+          </div>
+        </div>
+        <div class="pt-3 flex items-center justify-end gap-3 border-t border-slate-100">
+          <button type="button" onclick="App.closeModal('modal-appointment')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">Cancel</button>
+          <button type="submit" id="btn-save-appointment" class="px-5 py-2 rounded-xl text-sm font-bold bg-sky-600 hover:bg-sky-700 text-white shadow-sm transition">Save Appointment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MEDICAL RECORD MODAL (Add & Edit) -->
+  <div id="modal-record" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 modal-content animate-fade-in">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <h3 id="modal-record-title" class="text-lg font-bold text-slate-900">New Medical Record</h3>
+        <button onclick="App.closeModal('modal-record')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="form-record" class="mt-5 space-y-4">
+        <input type="hidden" id="record-id-input" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Patient</label>
+            <select id="record-patient-select" required class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 bg-white">
+              <option value="">-- Select Patient --</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Doctor</label>
+            <select id="record-doctor-select" required class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 bg-white">
+              <option value="">-- Select Doctor --</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Diagnosis</label>
+            <input type="text" id="record-diagnosis-input" placeholder="e.g. Hypertension, Viral Fever" required class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Record Date</label>
+            <input type="date" id="record-date-input" required class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Reported Symptoms</label>
+          <textarea id="record-symptoms-input" rows="2" placeholder="e.g. Headache, high fever, fatigue for 3 days" required class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Prescription & Advice</label>
+          <textarea id="record-prescription-input" rows="2" placeholder="e.g. Paracetamol 500mg twice daily, bed rest" required class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"></textarea>
+        </div>
+        <div class="pt-3 flex items-center justify-end gap-3 border-t border-slate-100">
+          <button type="button" onclick="App.closeModal('modal-record')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">Cancel</button>
+          <button type="submit" id="btn-save-record" class="px-5 py-2 rounded-xl text-sm font-bold bg-sky-600 hover:bg-sky-700 text-white shadow-sm transition">Save Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MEDICAL RECORD DETAIL VIEW MODAL -->
+  <div id="modal-record-detail" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 modal-content animate-fade-in">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="file-check" class="w-5 h-5 text-emerald-600"></i> Medical Record Detail
+        </h3>
+        <button onclick="App.closeModal('modal-record-detail')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="mt-4 space-y-4">
+        <div class="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl">
+          <div>
+            <p class="text-xs font-semibold text-slate-400">Patient</p>
+            <p id="detail-record-patient" class="text-sm font-bold text-slate-800 mt-0.5">--</p>
+          </div>
+          <div>
+            <p class="text-xs font-semibold text-slate-400">Attending Doctor</p>
+            <p id="detail-record-doctor" class="text-sm font-bold text-slate-800 mt-0.5">--</p>
+          </div>
+          <div class="col-span-2 pt-2 border-t border-slate-200">
+            <p class="text-xs font-semibold text-slate-400">Date of Visit</p>
+            <p id="detail-record-date" class="text-sm font-medium text-slate-700 mt-0.5">--</p>
+          </div>
+        </div>
+
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Diagnosis</p>
+          <div id="detail-record-diagnosis" class="mt-1 p-3 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 text-sm font-semibold">--</div>
+        </div>
+
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Observed Symptoms</p>
+          <div id="detail-record-symptoms" class="mt-1 p-3 rounded-xl bg-slate-50 text-slate-700 border border-slate-200 text-sm">--</div>
+        </div>
+
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Prescription & Medical Notes</p>
+          <div id="detail-record-prescription" class="mt-1 p-3 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200 text-sm font-medium">--</div>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end">
+        <button onclick="App.closeModal('modal-record-detail')" class="px-5 py-2 rounded-xl text-sm font-semibold bg-slate-800 hover:bg-slate-900 text-white transition">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PATIENT MODAL (Add & Edit) -->
+  <div id="modal-patient" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 modal-content animate-fade-in">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <h3 id="modal-patient-title" class="text-lg font-bold text-slate-900">Register Patient</h3>
+        <button onclick="App.closeModal('modal-patient')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="form-patient" class="mt-5 space-y-4">
+        <input type="hidden" id="patient-id-input" />
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Patient Name</label>
+          <input type="text" id="patient-name-input" placeholder="e.g. Rahul Sharma" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Age</label>
+          <input type="number" id="patient-age-input" min="1" max="130" placeholder="e.g. 35" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Diagnosed Condition / Disease</label>
+          <input type="text" id="patient-disease-input" placeholder="e.g. Fever, Diabetes, Asthma" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500" />
+        </div>
+        <div class="pt-3 flex items-center justify-end gap-3 border-t border-slate-100">
+          <button type="button" onclick="App.closeModal('modal-patient')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">Cancel</button>
+          <button type="submit" id="btn-save-patient" class="px-5 py-2 rounded-xl text-sm font-bold bg-sky-600 hover:bg-sky-700 text-white shadow-sm transition">Save Patient</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CONFIRM ACTION MODAL -->
+  <div id="modal-confirm" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 modal-content animate-fade-in">
+      <div class="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mb-4">
+        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+      </div>
+      <h3 id="confirm-modal-title" class="text-base font-bold text-slate-900">Confirm Action</h3>
+      <p id="confirm-modal-message" class="text-sm text-slate-500 mt-1.5 leading-relaxed">Are you sure you want to proceed?</p>
+      <div class="mt-6 flex items-center justify-end gap-3">
+        <button onclick="App.closeModal('modal-confirm')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">Cancel</button>
+        <button id="confirm-modal-button" class="px-4 py-2 rounded-xl text-sm font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-sm transition">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BACKEND CONFIG / SETTINGS MODAL -->
+  <div id="modal-settings" class="modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 modal-content animate-fade-in">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="settings" class="w-5 h-5 text-sky-600"></i> Backend Connection
+        </h3>
+        <button onclick="App.closeModal('modal-settings')" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="mt-4 space-y-4">
+        <p class="text-xs text-slate-500 leading-relaxed">
+          Configure the FastAPI backend server URL. The default address is <code class="font-mono bg-slate-100 px-1 py-0.5 rounded text-sky-700">http://127.0.0.1:8000</code>.
+        </p>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">FastAPI Backend URL</label>
+          <input type="url" id="settings-backend-url" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500" />
+        </div>
+      </div>
+      <div class="mt-6 flex items-center justify-between gap-3 pt-3 border-t border-slate-100">
+        <button id="btn-reset-settings" class="text-xs font-semibold text-slate-500 hover:text-slate-700">Reset Default</button>
+        <div class="flex items-center gap-2">
+          <button onclick="App.closeModal('modal-settings')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">Cancel</button>
+          <button id="btn-save-settings" class="px-4 py-2 rounded-xl text-sm font-bold bg-sky-600 hover:bg-sky-700 text-white shadow-sm transition">Save &amp; Reconnect</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // Initialize icons immediately
+    if (window.lucide) {
+      window.lucide.createIcons();
+    }
+  </script>
+</body>
+</html>
